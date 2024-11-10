@@ -6,7 +6,7 @@ import { UserService } from '../user/user.service';
 import { ChangePasswordDto, CreateUserDto } from '../user/dtos';
 import { JwtAuthGuard } from './guards';
 import { IRequestWithUser } from '../../common';
-import { AdminUnauthorizedException } from './exceptions';
+import { UserUnauthorizedException } from './exceptions';
 import { User } from '../user/user.entity';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
@@ -26,7 +26,7 @@ export class AuthController {
     );
 
     if (!user) {
-      throw new AdminUnauthorizedException();
+      throw new UserUnauthorizedException();
     }
 
     const payload = {

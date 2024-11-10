@@ -1,2 +1,2 @@
 export * from './incorrect-password.exception';
-export * from './admin-unauthorized.exception';
+export * from './user-unauthorized.exception';

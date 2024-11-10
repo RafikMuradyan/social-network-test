@@ -17,7 +17,7 @@ async function bootstrap(): Promise<NestExpressApplication> {
     }),
   );
 
-  buildSwagger(app);
+  // buildSwagger(app);
 
   const port = process.env.PORT || 4000;
   await app.listen(port);

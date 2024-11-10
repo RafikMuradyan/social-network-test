@@ -56,7 +56,7 @@ export class FriendRequestController {
   async acceptRequest(
     @Req() req: IRequestWithUser,
     @Param('requestId') requestId: number,
-  ) {
+  ): Promise<FriendRequest>  {
     return this.friendRequestService.acceptRequest(requestId, req.user.id);
   }
 
@@ -64,7 +64,7 @@ export class FriendRequestController {
   async declineRequest(
     @Req() req: IRequestWithUser,
     @Param('requestId') requestId: number,
-  ) {
+  ): Promise<FriendRequest>  {
     return this.friendRequestService.declineRequest(requestId, req.user.id);
   }
 }

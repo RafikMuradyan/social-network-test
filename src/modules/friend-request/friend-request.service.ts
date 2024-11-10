@@ -47,7 +47,8 @@ export class FriendRequestService {
       status: FriendRequestStatus.PENDING,
     });
 
-    const createdRequest = await this.friendRequestRepository.save(friendRequest);
+    const createdRequest =
+      await this.friendRequestRepository.save(friendRequest);
 
     return plainToInstance(FriendRequest, createdRequest);
   }
@@ -108,7 +109,6 @@ export class FriendRequestService {
     const savedRequest = await this.friendRequestRepository.save(request);
 
     return plainToInstance(FriendRequest, savedRequest);
-
   }
 
   async declineRequest(

@@ -5,7 +5,7 @@ import { ILoginResponse } from './interfaces';
 import { UserService } from '../user/user.service';
 import { ChangePasswordDto, CreateUserDto } from '../user/dtos';
 import { JwtAuthGuard } from './guards';
-import { IRequestWithUser } from 'src/common';
+import { IRequestWithUser } from '../../common';
 import { AdminUnauthorizedException } from './exceptions';
 import { User } from '../user/user.entity';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';

@@ -1,7 +1,7 @@
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { User } from '../user/user.entity';
 import { FriendRequestStatus } from './enums/request-status.enum';
-import { AbstractEntity } from 'src/common';
+import { AbstractEntity } from '../../common';
 
 @Entity('friend_requests')
 export class FriendRequest extends AbstractEntity {

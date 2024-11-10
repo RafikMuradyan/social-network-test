@@ -10,9 +10,9 @@ import {
 } from '@nestjs/common';
 import { FriendRequestService } from './friend-request.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { IRequestWithUser } from 'src/common/interfaces/request-with-user.interface';
+import { IRequestWithUser } from '../../common/interfaces/request-with-user.interface';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { PageDto, PageOptionsDto } from 'src/common';
+import { PageDto, PageOptionsDto } from '../../common';
 import { FriendRequest } from './friend-request.entity';
 
 @ApiTags('Friend Requests')
@@ -56,7 +56,7 @@ export class FriendRequestController {
   async acceptRequest(
     @Req() req: IRequestWithUser,
     @Param('requestId') requestId: number,
-  ): Promise<FriendRequest>  {
+  ): Promise<FriendRequest> {
     return this.friendRequestService.acceptRequest(requestId, req.user.id);
   }
 
@@ -64,7 +64,7 @@ export class FriendRequestController {
   async declineRequest(
     @Req() req: IRequestWithUser,
     @Param('requestId') requestId: number,
-  ): Promise<FriendRequest>  {
+  ): Promise<FriendRequest> {
     return this.friendRequestService.declineRequest(requestId, req.user.id);
   }
 }

@@ -9,7 +9,7 @@ import {
   FriendRequestExsistsException,
   FriendRequestNotFoundException,
 } from './exceptions';
-import { PageDto, PageMetaDto, PageOptionsDto } from 'src/common';
+import { PageDto, PageMetaDto, PageOptionsDto } from '../../common';
 import { plainToInstance } from 'class-transformer';
 
 @Injectable()

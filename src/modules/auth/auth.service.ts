@@ -18,8 +18,8 @@ export class AuthService {
     return bcrypt.compare(password, hashedPassword);
   }
 
-  async login(admin: IPayload): Promise<string> {
-    return this.jwtService.sign(admin);
+  async login(user: IPayload): Promise<string> {
+    return this.jwtService.sign(user);
   }
 
   async validateUser(username: string, password: string): Promise<IPayload> {

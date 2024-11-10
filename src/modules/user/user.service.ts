@@ -2,12 +2,21 @@ import { hash, compare } from 'bcrypt';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
-import { Repository } from 'typeorm';
+import {
+  Between,
+  FindOptionsWhere,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  Not,
+  Raw,
+  Repository,
+} from 'typeorm';
 import { UserNotFoundException } from './exceptions';
-import { ChangePasswordDto, CreateUserDto } from './dtos';
+import { ChangePasswordDto, CreateUserDto, UserSearchDto } from './dtos';
 import { IncorrectPasswordException } from '../auth/exceptions';
-import { instanceToPlain, plainToInstance } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
 import { UserAlreadyExsistsException } from './exceptions/user-already-exsists.exception';
+import { PageOptionsDto, PageDto, PageMetaDto } from 'src/common';
 
 @Injectable()
 export class UserService {
@@ -81,8 +90,42 @@ export class UserService {
     const hashedNewPassword = await hash(changePasswordDto.newPassword, 10);
     user.password = hashedNewPassword;
 
-    const updatedAdmin = await this.userRepository.save(user);
+    const updatedUser = await this.userRepository.save(user);
 
-    return instanceToPlain(updatedAdmin);
+    return plainToInstance(User, updatedUser);
+  }
+
+  async searchUsers(
+    currentUserId: number,
+    searchParams: UserSearchDto,
+    pageOptionsDto: PageOptionsDto,
+  ): Promise<PageDto<User>> {
+    const { searchTerm, minAge, maxAge } = searchParams;
+    const where: FindOptionsWhere<User> = {};
+
+    where.id = Not(currentUserId);
+
+    if (searchTerm) {
+      const search = `%${searchTerm}%`;
+      where.username = Raw((alias) => `${alias} ILIKE :search`, { search });
+    }
+
+    if (minAge && maxAge) {
+      where.age = Between(minAge, maxAge);
+    } else if (minAge) {
+      where.age = MoreThanOrEqual(minAge);
+    } else if (maxAge) {
+      where.age = LessThanOrEqual(maxAge);
+    }
+
+    const [users, totalCount] = await this.userRepository.findAndCount({
+      where,
+      skip: pageOptionsDto.skip,
+      take: pageOptionsDto.take,
+    });
+
+    const pageMetaDto = new PageMetaDto({ totalCount, pageOptionsDto });
+
+    return new PageDto(plainToInstance(User, users), pageMetaDto);
   }
 }

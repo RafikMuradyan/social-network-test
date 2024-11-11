@@ -4,7 +4,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './user.entity';
 import {
   Between,
-  Brackets,
   FindOptionsWhere,
   LessThanOrEqual,
   MoreThanOrEqual,
@@ -149,15 +148,10 @@ export class UserService {
         'receivedRequests',
         'receivedRequests.receiver_id = user.id',
       )
-      .where('sentRequests.status = :status', {
-        status: FriendRequestStatus.ACCEPTED,
-      })
-      .andWhere(
-        new Brackets((qb) =>
-          qb
-            .orWhere('sentRequests.receiver_id = :userId', { userId })
-            .orWhere('receivedRequests.sender_id = :userId', { userId }),
-        ),
+      .where(
+        `(sentRequests.receiver_id = :userId AND sentRequests.status = :status) OR 
+          (receivedRequests.sender_id = :userId AND receivedRequests.status = :status)`,
+        { userId, status: FriendRequestStatus.ACCEPTED },
       )
       .getManyAndCount();
 

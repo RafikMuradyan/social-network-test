@@ -40,6 +40,7 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   password: process.env.POSTGRES_PASSWORD,
   database: process.env.POSTGRES_DATABASE,
   migrationsRun: true,
+  logging: false,
 };
 
 const dataSource = new DataSource(dataSourceOptions);

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { FriendRequest } from './friend-request.entity';
-import { FriendRequestStatus } from './enums/request-status.enum';
+import { FriendRequestStatus } from './enums';
 import { UserService } from '../user/user.service';
 import {
   CantRequestToSelfException,

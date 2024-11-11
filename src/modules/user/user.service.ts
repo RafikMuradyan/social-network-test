@@ -15,7 +15,7 @@ import { UserNotFoundException } from './exceptions';
 import { ChangePasswordDto, CreateUserDto, UserSearchDto } from './dtos';
 import { IncorrectPasswordException } from '../auth/exceptions';
 import { plainToInstance } from 'class-transformer';
-import { UserAlreadyExsistsException } from './exceptions/user-already-exsists.exception';
+import { UserAlreadyExsistsException } from './exceptions';
 import { PageOptionsDto, PageDto, PageMetaDto } from 'src/common';
 import { FriendRequestStatus } from '../friend-request/enums';
 

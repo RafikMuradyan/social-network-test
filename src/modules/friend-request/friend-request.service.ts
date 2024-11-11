@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { FriendRequest } from './friend-request.entity';
+import { FriendRequestEntity } from './friend-request.entity';
 import { FriendRequestStatus } from './enums';
 import { UserService } from '../user/user.service';
 import {
@@ -16,15 +16,15 @@ import { plainToInstance } from 'class-transformer';
 @Injectable()
 export class FriendRequestService {
   constructor(
-    @InjectRepository(FriendRequest)
-    private friendRequestRepository: Repository<FriendRequest>,
+    @InjectRepository(FriendRequestEntity)
+    private friendRequestRepository: Repository<FriendRequestEntity>,
     private userService: UserService,
-  ) { }
+  ) {}
 
   async sendRequest(
     senderId: number,
     receiverId: number,
-  ): Promise<FriendRequest> {
+  ): Promise<FriendRequestEntity> {
     if (senderId === receiverId) {
       throw new CantRequestToSelfException();
     }
@@ -60,13 +60,13 @@ export class FriendRequestService {
     const createdRequest =
       await this.friendRequestRepository.save(friendRequest);
 
-    return plainToInstance(FriendRequest, createdRequest);
+    return plainToInstance(FriendRequestEntity, createdRequest);
   }
 
   async getReceivedRequests(
     userId: number,
     pageOptionsDto: PageOptionsDto,
-  ): Promise<PageDto<FriendRequest>> {
+  ): Promise<PageDto<FriendRequestEntity>> {
     const [requests, totalCount] =
       await this.friendRequestRepository.findAndCount({
         where: {
@@ -83,13 +83,16 @@ export class FriendRequestService {
 
     const pageMetaDto = new PageMetaDto({ totalCount, pageOptionsDto });
 
-    return new PageDto(plainToInstance(FriendRequest, requests), pageMetaDto);
+    return new PageDto(
+      plainToInstance(FriendRequestEntity, requests),
+      pageMetaDto,
+    );
   }
 
   async getSentRequests(
     userId: number,
     pageOptionsDto: PageOptionsDto,
-  ): Promise<PageDto<FriendRequest>> {
+  ): Promise<PageDto<FriendRequestEntity>> {
     const [requests, totalCount] =
       await this.friendRequestRepository.findAndCount({
         where: {
@@ -103,13 +106,16 @@ export class FriendRequestService {
 
     const pageMetaDto = new PageMetaDto({ totalCount, pageOptionsDto });
 
-    return new PageDto(plainToInstance(FriendRequest, requests), pageMetaDto);
+    return new PageDto(
+      plainToInstance(FriendRequestEntity, requests),
+      pageMetaDto,
+    );
   }
 
   async acceptRequest(
     requestId: number,
     userId: number,
-  ): Promise<FriendRequest> {
+  ): Promise<FriendRequestEntity> {
     const request = await this.friendRequestRepository.findOne({
       where: { id: requestId, receiver: { id: userId } },
     });
@@ -121,13 +127,13 @@ export class FriendRequestService {
     request.status = FriendRequestStatus.ACCEPTED;
     const savedRequest = await this.friendRequestRepository.save(request);
 
-    return plainToInstance(FriendRequest, savedRequest);
+    return plainToInstance(FriendRequestEntity, savedRequest);
   }
 
   async declineRequest(
     requestId: number,
     userId: number,
-  ): Promise<FriendRequest> {
+  ): Promise<FriendRequestEntity> {
     const request = await this.friendRequestRepository.findOne({
       where: { id: requestId, receiver: { id: userId } },
     });
@@ -139,6 +145,6 @@ export class FriendRequestService {
     request.status = FriendRequestStatus.DECLINED;
     const savedRequest = await this.friendRequestRepository.save(request);
 
-    return plainToInstance(FriendRequest, savedRequest);
+    return plainToInstance(FriendRequestEntity, savedRequest);
   }
 }

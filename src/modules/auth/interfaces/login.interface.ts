@@ -3,7 +3,7 @@ export interface ILoginResponse {
   accessToken: string;
 }
 
-export interface IPayload {
+export interface ITokenPayload {
   id: number;
   name: string;
   username: string;

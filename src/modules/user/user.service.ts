@@ -1,9 +1,10 @@
 import { hash, compare } from 'bcrypt';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from './user.entity';
+import { UserEntity } from './user.entity';
 import {
   Between,
+  Brackets,
   FindOptionsWhere,
   LessThanOrEqual,
   MoreThanOrEqual,
@@ -12,7 +13,7 @@ import {
   Repository,
 } from 'typeorm';
 import { UserNotFoundException } from './exceptions';
-import { ChangePasswordDto, CreateUserDto, UserSearchDto } from './dtos';
+import { ChangePasswordDto, CreateUserDto, UserSearchOptionsDto } from './dtos';
 import { IncorrectPasswordException } from '../auth/exceptions';
 import { plainToInstance } from 'class-transformer';
 import { UserAlreadyExistsException } from './exceptions';
@@ -22,11 +23,11 @@ import { FriendRequestStatus } from '../friend-request/enums';
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
   ) {}
 
-  async findById(id: number): Promise<User> {
+  async findById(id: number): Promise<UserEntity> {
     const existingUser = await this.userRepository.findOneBy({ id });
 
     if (!existingUser) {
@@ -36,7 +37,7 @@ export class UserService {
     return existingUser;
   }
 
-  async findByUsername(username: string): Promise<User> {
+  async findByUsername(username: string): Promise<UserEntity> {
     const existingUser = await this.userRepository.findOne({
       where: { username },
     });
@@ -44,7 +45,7 @@ export class UserService {
     return existingUser;
   }
 
-  async findByUsernameOrFail(username: string): Promise<User> {
+  async findByUsernameOrFail(username: string): Promise<UserEntity> {
     const existingUser = await this.userRepository.findOne({
       where: { username },
     });
@@ -53,10 +54,10 @@ export class UserService {
       throw new UserNotFoundException();
     }
 
-    return plainToInstance(User, existingUser);
+    return plainToInstance(UserEntity, existingUser);
   }
 
-  async registration(createUserDto: CreateUserDto): Promise<User> {
+  async registration(createUserDto: CreateUserDto): Promise<UserEntity> {
     const existingUser = await this.findByUsername(createUserDto.username);
     if (existingUser) {
       throw new UserAlreadyExistsException();
@@ -71,13 +72,13 @@ export class UserService {
 
     const savedUser = await this.userRepository.save(newUser);
 
-    return plainToInstance(User, savedUser);
+    return plainToInstance(UserEntity, savedUser);
   }
 
   async changePassword(
     id: number,
     changePasswordDto: ChangePasswordDto,
-  ): Promise<Partial<User>> {
+  ): Promise<Partial<UserEntity>> {
     const user = await this.findById(id);
 
     const isMatch = await compare(
@@ -93,16 +94,15 @@ export class UserService {
 
     const updatedUser = await this.userRepository.save(user);
 
-    return plainToInstance(User, updatedUser);
+    return plainToInstance(UserEntity, updatedUser);
   }
 
   async searchUsers(
     currentUserId: number,
-    searchParams: UserSearchDto,
-    pageOptionsDto: PageOptionsDto,
-  ): Promise<PageDto<User>> {
+    searchParams: UserSearchOptionsDto,
+  ): Promise<PageDto<UserEntity>> {
     const { searchTerm, minAge, maxAge } = searchParams;
-    const where: FindOptionsWhere<User> = {};
+    const where: FindOptionsWhere<UserEntity> = {};
 
     where.id = Not(currentUserId);
 
@@ -121,19 +121,22 @@ export class UserService {
 
     const [users, totalCount] = await this.userRepository.findAndCount({
       where,
-      skip: pageOptionsDto.skip,
-      take: pageOptionsDto.take,
+      skip: searchParams.skip,
+      take: searchParams.take,
     });
 
-    const pageMetaDto = new PageMetaDto({ totalCount, pageOptionsDto });
+    const pageMetaDto = new PageMetaDto({
+      totalCount,
+      pageOptionsDto: searchParams,
+    });
 
-    return new PageDto(plainToInstance(User, users), pageMetaDto);
+    return new PageDto(plainToInstance(UserEntity, users), pageMetaDto);
   }
 
   async getFriends(
     userId: number,
     pageOptionsDto: PageOptionsDto,
-  ): Promise<PageDto<User>> {
+  ): Promise<PageDto<UserEntity>> {
     const [friends, totalCount] = await this.userRepository
       .createQueryBuilder('user')
       .leftJoin(
@@ -146,15 +149,20 @@ export class UserService {
         'receivedRequests',
         'receivedRequests.receiver_id = user.id',
       )
-      .where(
-        '(sentRequests.receiver_id = :userId AND sentRequests.status = :status) OR ' +
-          '(receivedRequests.sender_id = :userId AND receivedRequests.status = :status)',
-        { userId, status: FriendRequestStatus.ACCEPTED },
+      .where('sentRequests.status = :status', {
+        status: FriendRequestStatus.ACCEPTED,
+      })
+      .andWhere(
+        new Brackets((qb) =>
+          qb
+            .orWhere('sentRequests.receiver_id = :userId', { userId })
+            .orWhere('receivedRequests.sender_id = :userId', { userId }),
+        ),
       )
       .getManyAndCount();
 
     const pageMetaDto = new PageMetaDto({ totalCount, pageOptionsDto });
 
-    return new PageDto(plainToInstance(User, friends), pageMetaDto);
+    return new PageDto(plainToInstance(UserEntity, friends), pageMetaDto);
   }
 }

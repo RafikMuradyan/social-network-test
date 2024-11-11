@@ -1,4 +1,12 @@
-import { Controller, Post, Body, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  Req,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dtos';
 import { ILoginResponse } from './interfaces';
@@ -7,8 +15,8 @@ import { ChangePasswordDto, CreateUserDto } from '../user/dtos';
 import { JwtAuthGuard } from './guards';
 import { IRequestWithUser } from '../../common';
 import { UserUnauthorizedException } from './exceptions';
-import { User } from '../user/user.entity';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { UserEntity } from '../user/user.entity';
+import { ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -19,6 +27,8 @@ export class AuthController {
   ) {}
 
   @Post('login')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiCreatedResponse({ description: 'user login' })
   async login(@Body() loginDto: LoginDto): Promise<ILoginResponse> {
     const user = await this.authService.validateUser(
       loginDto.username,
@@ -44,21 +54,24 @@ export class AuthController {
   }
 
   @Post('registration')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiCreatedResponse({ description: 'user registration' })
   async registration(
     @Body() createUserDto: CreateUserDto,
-  ): Promise<Partial<User>> {
+  ): Promise<UserEntity> {
     const createdUser = this.userService.registration(createUserDto);
 
     return createdUser;
   }
 
   @Post('change-password')
-  @ApiBearerAuth()
+  @HttpCode(HttpStatus.CREATED)
+  @ApiCreatedResponse({ description: "change users' password" })
   @UseGuards(JwtAuthGuard)
   async changePassword(
     @Req() req: IRequestWithUser,
     @Body() changePasswordDto: ChangePasswordDto,
-  ): Promise<Partial<User>> {
+  ): Promise<Partial<UserEntity>> {
     await changePasswordDto.validate();
     const userId = req.user.id;
 

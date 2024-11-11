@@ -2,8 +2,8 @@
 require('dotenv').config();
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { databaseConfigSchema } from '../src/utils';
-import { User } from '../src/modules/user/user.entity';
-import { FriendRequest } from '../src/modules/friend-request/friend-request.entity';
+import { UserEntity } from '../src/modules/user/user.entity';
+import { FriendRequestEntity } from '../src/modules/friend-request/friend-request.entity';
 
 export const dataSourceOptions: DataSourceOptions = {
   type: 'postgres',
@@ -17,7 +17,7 @@ export const dataSourceOptions: DataSourceOptions = {
       ? { rejectUnauthorized: false }
       : undefined,
   synchronize: false,
-  entities: [User, FriendRequest],
+  entities: [UserEntity, FriendRequestEntity],
   migrations: ['dist/database/migrations/*.js'],
   subscribers: [],
 };

@@ -1,10 +1,10 @@
 import { Entity, Column, OneToMany } from 'typeorm';
 import { AbstractEntity } from '../../common';
 import { Exclude } from 'class-transformer';
-import { FriendRequest } from '../friend-request/friend-request.entity';
+import { FriendRequestEntity } from '../friend-request/friend-request.entity';
 
 @Entity({ name: 'users' })
-export class User extends AbstractEntity {
+export class UserEntity extends AbstractEntity {
   @Column({ nullable: false, type: 'varchar' })
   name!: string;
 
@@ -18,9 +18,9 @@ export class User extends AbstractEntity {
   @Exclude()
   password!: string;
 
-  @OneToMany(() => FriendRequest, (request) => request.sender)
-  sentRequests: FriendRequest[];
+  @OneToMany(() => FriendRequestEntity, (request) => request.sender)
+  sentRequests: FriendRequestEntity[];
 
-  @OneToMany(() => FriendRequest, (request) => request.receiver)
-  receivedRequests: FriendRequest[];
+  @OneToMany(() => FriendRequestEntity, (request) => request.receiver)
+  receivedRequests: FriendRequestEntity[];
 }

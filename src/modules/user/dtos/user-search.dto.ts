@@ -1,8 +1,9 @@
 import { IsOptional, IsString, IsInt, Min, Max } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
+import { PageOptionsDto } from 'src/common';
 
-export class UserSearchDto {
+export class UserSearchOptionsDto extends PageOptionsDto {
   @ApiProperty({
     description: 'A search term to filter users by username.',
     example: 'john',

@@ -5,6 +5,7 @@ import { FriendRequest } from './friend-request.entity';
 import { FriendRequestStatus } from './enums';
 import { UserService } from '../user/user.service';
 import {
+  AlreadyFriendsException,
   CantRequestToSelfException,
   FriendRequestExsistsException,
   FriendRequestNotFoundException,
@@ -18,7 +19,7 @@ export class FriendRequestService {
     @InjectRepository(FriendRequest)
     private friendRequestRepository: Repository<FriendRequest>,
     private userService: UserService,
-  ) {}
+  ) { }
 
   async sendRequest(
     senderId: number,
@@ -37,11 +38,17 @@ export class FriendRequestService {
       ],
     });
 
-    if (
-      existingRequest &&
-      existingRequest.status !== FriendRequestStatus.DECLINED
-    ) {
-      throw new FriendRequestExsistsException();
+    if (existingRequest) {
+      switch (existingRequest.status) {
+        case FriendRequestStatus.ACCEPTED:
+          throw new AlreadyFriendsException();
+
+        case FriendRequestStatus.PENDING:
+          throw new FriendRequestExsistsException();
+
+        default:
+          break;
+      }
     }
 
     const friendRequest = this.friendRequestRepository.create({

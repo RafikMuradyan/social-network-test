@@ -27,4 +27,13 @@ export class UserController {
       pageOptionsDto,
     );
   }
+
+  @Get('friends')
+  async getFriends(
+    @Req() req: IRequestWithUser,
+    @Query() pageOptionsDto: PageOptionsDto,
+  ): Promise<PageDto<User>> {
+    const currentUserId = req.user.id;
+    return this.userService.getFriends(currentUserId, pageOptionsDto);
+  }
 }

@@ -1,2 +1,2 @@
 export * from './user-not-found.exception';
-export * from './user-already-exsists.exception';
+export * from './user-already-exists.exception';

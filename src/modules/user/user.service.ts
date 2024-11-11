@@ -15,7 +15,7 @@ import { UserNotFoundException } from './exceptions';
 import { ChangePasswordDto, CreateUserDto, UserSearchDto } from './dtos';
 import { IncorrectPasswordException } from '../auth/exceptions';
 import { plainToInstance } from 'class-transformer';
-import { UserAlreadyExsistsException } from './exceptions';
+import { UserAlreadyExistsException } from './exceptions';
 import { PageOptionsDto, PageDto, PageMetaDto } from 'src/common';
 import { FriendRequestStatus } from '../friend-request/enums';
 
@@ -59,7 +59,7 @@ export class UserService {
   async registration(createUserDto: CreateUserDto): Promise<User> {
     const existingUser = await this.findByUsername(createUserDto.username);
     if (existingUser) {
-      throw new UserAlreadyExsistsException();
+      throw new UserAlreadyExistsException();
     }
 
     const hashedPassword = await hash(createUserDto.password, 10);

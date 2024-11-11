@@ -1,6 +1,6 @@
 import { ConflictException } from '@nestjs/common';
 
-export class UserAlreadyExsistsException extends ConflictException {
+export class UserAlreadyExistsException extends ConflictException {
   constructor() {
     super('errors.userAlreadyExsits');
   }

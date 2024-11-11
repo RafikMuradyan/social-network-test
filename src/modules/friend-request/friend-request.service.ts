@@ -37,7 +37,10 @@ export class FriendRequestService {
       ],
     });
 
-    if (existingRequest) {
+    if (
+      existingRequest &&
+      existingRequest.status !== FriendRequestStatus.DECLINED
+    ) {
       throw new FriendRequestExsistsException();
     }
 
@@ -82,7 +85,10 @@ export class FriendRequestService {
   ): Promise<PageDto<FriendRequest>> {
     const [requests, totalCount] =
       await this.friendRequestRepository.findAndCount({
-        where: { sender: { id: userId } },
+        where: {
+          sender: { id: userId },
+          status: FriendRequestStatus.PENDING,
+        },
         relations: ['receiver'],
         skip: pageOptionsDto.skip,
         take: pageOptionsDto.take,

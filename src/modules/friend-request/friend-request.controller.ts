@@ -10,9 +10,8 @@ import {
 } from '@nestjs/common';
 import { FriendRequestService } from './friend-request.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { IRequestWithUser } from '../../common/interfaces/request-with-user.interface';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { PageDto, PageOptionsDto } from '../../common';
+import { PageDto, PageOptionsDto, IRequestWithUser } from '../../common';
 import { FriendRequest } from './friend-request.entity';
 
 @ApiTags('Friend Requests')

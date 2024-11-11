@@ -1,11 +1,10 @@
 import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { IRequestWithUser } from '../../common/interfaces/request-with-user.interface';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { PageDto, PageOptionsDto } from '../../common';
+import { PageDto, PageOptionsDto, IRequestWithUser } from 'src/common';
 import { User } from './user.entity';
-import { UserSearchDto } from './dtos/user-search.dto';
+import { UserSearchDto } from './dtos';
 
 @ApiTags('Users')
 @ApiBearerAuth()
@@ -26,5 +25,14 @@ export class UserController {
       searchParams,
       pageOptionsDto,
     );
+  }
+
+  @Get('friends')
+  async getFriends(
+    @Req() req: IRequestWithUser,
+    @Query() pageOptionsDto: PageOptionsDto,
+  ): Promise<PageDto<User>> {
+    const currentUserId = req.user.id;
+    return this.userService.getFriends(currentUserId, pageOptionsDto);
   }
 }

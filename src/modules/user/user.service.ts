@@ -15,8 +15,9 @@ import { UserNotFoundException } from './exceptions';
 import { ChangePasswordDto, CreateUserDto, UserSearchDto } from './dtos';
 import { IncorrectPasswordException } from '../auth/exceptions';
 import { plainToInstance } from 'class-transformer';
-import { UserAlreadyExsistsException } from './exceptions/user-already-exsists.exception';
-import { PageOptionsDto, PageDto, PageMetaDto } from '../../common';
+import { UserAlreadyExsistsException } from './exceptions';
+import { PageOptionsDto, PageDto, PageMetaDto } from 'src/common';
+import { FriendRequestStatus } from '../friend-request/enums';
 
 @Injectable()
 export class UserService {
@@ -127,5 +128,33 @@ export class UserService {
     const pageMetaDto = new PageMetaDto({ totalCount, pageOptionsDto });
 
     return new PageDto(plainToInstance(User, users), pageMetaDto);
+  }
+
+  async getFriends(
+    userId: number,
+    pageOptionsDto: PageOptionsDto,
+  ): Promise<PageDto<User>> {
+    const [friends, totalCount] = await this.userRepository
+      .createQueryBuilder('user')
+      .leftJoin(
+        'friend_requests',
+        'sentRequests',
+        'sentRequests.sender_id = user.id',
+      )
+      .leftJoin(
+        'friend_requests',
+        'receivedRequests',
+        'receivedRequests.receiver_id = user.id',
+      )
+      .where(
+        '(sentRequests.receiver_id = :userId AND sentRequests.status = :status) OR ' +
+          '(receivedRequests.sender_id = :userId AND receivedRequests.status = :status)',
+        { userId, status: FriendRequestStatus.ACCEPTED },
+      )
+      .getManyAndCount();
+
+    const pageMetaDto = new PageMetaDto({ totalCount, pageOptionsDto });
+
+    return new PageDto(plainToInstance(User, friends), pageMetaDto);
   }
 }

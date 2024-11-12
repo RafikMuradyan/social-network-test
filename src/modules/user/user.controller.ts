@@ -1,8 +1,16 @@
-import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { PageDto, PageOptionsDto, IRequestWithUser } from 'src/common';
+import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { PageDto, PageOptionsDto, IRequestWithUser } from '../../common';
 import { UserEntity } from './user.entity';
 import { UserSearchOptionsDto } from './dtos';
 
@@ -14,6 +22,8 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get('search')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ description: 'search user' })
   async searchUsers(
     @Req() req: IRequestWithUser,
     @Query() userSearchOptions: UserSearchOptionsDto,
@@ -23,6 +33,8 @@ export class UserController {
   }
 
   @Get('friends')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ description: 'get friends' })
   async getFriends(
     @Req() req: IRequestWithUser,
     @Query() pageOptionsDto: PageOptionsDto,
